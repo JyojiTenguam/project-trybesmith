@@ -1,6 +1,8 @@
 import express from 'express';
 import productsController from './controllers/productsController';
 import usersController from './controllers/usersControllers';
+import loginsController from './controllers/loginsController';
+import AuthService from './middleware/middleware';
 
 const app = express();
 
@@ -10,5 +12,7 @@ app.post('/products/', productsController.createProduct);
 app.get('/products', productsController.listProduct);
 
 app.get('/users', usersController.fetchAllUsers);
+
+app.post('/login', AuthService, loginsController.login);
 
 export default app;
