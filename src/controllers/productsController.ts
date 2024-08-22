@@ -16,4 +16,20 @@ async function createProduct(req: Request, res: Response): Promise<Response> {
   }
 }
 
-export default createProduct;
+async function listProduct(req: Request, res: Response): Promise<Response> {
+  try {
+    const products = await ProductModel.findAll();
+    const mappedProducts = products.map((product) => {
+      const { id, name, price, userId } = product.toJSON();
+      return { id, name, price, userId };
+    });
+    return res.status(200).json(mappedProducts);
+  } catch (error) {
+    return res.status(500).json({ message: 'Erro ao listar produtos' });
+  }
+}
+
+export default {
+  createProduct,
+  listProduct,
+};

@@ -14,7 +14,7 @@ describe('POST /products', function () {
 
   describe('create', () => {
     it('Deve cadastrar um produto com sucesso', async function () {
-      const createStub = sinon.stub(ProductModel, 'create').resolves(ProductModel.build(validProductMock));
+      sinon.stub(ProductModel, 'create').resolves(ProductModel.build(validProductMock));
   
       const response = await chai.request(app).post('/products').send({
         name: validProductMock.name,
@@ -24,12 +24,20 @@ describe('POST /products', function () {
   
       expect(response.status).to.equal(201);
       expect(response.body).to.deep.equal(validProductMock);
-      expect(createStub.calledOnce).to.be.true;
-      expect(createStub.calledWith({
+    });
+
+    it('Deve retornar um erro ao falhar na criação do produto', async function () {
+      const error = new Error('Erro ao criar produto');
+      sinon.stub(ProductModel, 'create').rejects(error);
+  
+      const response = await chai.request(app).post('/products').send({
         name: validProductMock.name,
         price: validProductMock.price,
         userId: validProductMock.userId,
-      })).to.be.true;
+      });
+  
+      expect(response.status).to.equal(500);
+      expect(response.body).to.deep.equal({ message: 'Erro ao criar produto' });
     });
   });
 });
