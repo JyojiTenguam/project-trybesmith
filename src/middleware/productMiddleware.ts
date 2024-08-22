@@ -32,7 +32,7 @@ function validateProductPrice(price: string): Validation {
   return { isValid: true };
 }
 
-function validateUserId(userId: number): Validation {
+function verifyUserId(userId: number): Validation {
   if (userId === undefined || userId === null) {
     return { isValid: false, message: '"userId" is required' };
   }
@@ -42,7 +42,7 @@ function validateUserId(userId: number): Validation {
   return { isValid: true };
 }
 
-async function checkUserExists(userId: number): Promise<Validation> {
+async function verifyUserExistence(userId: number): Promise<Validation> {
   const user = await UserModel.findByPk(userId);
   if (!user) {
     return { isValid: false, message: '"userId" not found' };
@@ -50,13 +50,13 @@ async function checkUserExists(userId: number): Promise<Validation> {
   return { isValid: true };
 }
 
-async function validProductField(req: Request, _res: Response): Promise<Validation | null> {
+async function checkProductFields(req: Request, _res: Response): Promise<Validation | null> {
   const { name, price, userId } = req.body;
 
   const validations = [
     validateProductName(name),
     validateProductPrice(price),
-    validateUserId(userId),
+    verifyUserId(userId),
   ];
 
   const invalidValidation = validations.find((validation) => !validation.isValid);
@@ -65,11 +65,11 @@ async function validProductField(req: Request, _res: Response): Promise<Validati
     return invalidValidation;
   }
 
-  return checkUserExists(userId);
+  return verifyUserExistence(userId);
 }
 
 async function validateProduct(req: Request, res: Response, next: NextFunction): Promise<void> {
-  const validationResult = await validProductField(req, res);
+  const validationResult = await checkProductFields(req, res);
 
   if (validationResult && !validationResult.isValid) {
     const message = validationResult.message ?? 'Invalid input';
